@@ -8,6 +8,9 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.TextView;
+import app.cryptocize.com.cryptocize.fragments.AccountFragment;
+import app.cryptocize.com.cryptocize.fragments.GoalsFragment;
+import app.cryptocize.com.cryptocize.fragments.SettingsFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,8 +26,8 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_home:
                   fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                   fm.beginTransaction()
-                      .replace(R.id.content_main2
-                          , Fragment)
+                      .replace(R.id.container
+                          , AccountFragment.newInstance())
                       .addToBackStack("string")
                       .commit();
                     //mTextMessage.setText(R.string.title_home);
@@ -32,8 +35,8 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_dashboard:
                   fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                   fm.beginTransaction()
-                      .replace(R.id.content_main2
-                          , Frag2)
+                      .replace(R.id.container
+                          , GoalsFragment.newInstance())
                       .addToBackStack("string")
                       .commit();
                     //mTextMessage.setText(R.string.title_dashboard);
@@ -41,8 +44,8 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_notifications:
                   fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                   fm.beginTransaction()
-                      .replace(R.id.content_main2
-                          , Frag3)
+                      .replace(R.id.container
+                          , SettingsFragment.newInstance())
                       .addToBackStack("string")
                       .commit();
                     //mTextMessage.setText(R.string.title_notifications);
@@ -53,15 +56,14 @@ public class MainActivity extends AppCompatActivity {
 
     };
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
 
-        mTextMessage = (TextView) findViewById(R.id.message);
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-    }
-
+    mTextMessage = (TextView) findViewById(R.id.message);
+    BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+    navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+  }
 
 }

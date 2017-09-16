@@ -18,7 +18,10 @@
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
+<<<<<<< HEAD
     <activity android:name=".SettingsActivity"></activity>
+=======
+>>>>>>> ef5f98f44e488f126226e121e044379740cb8814
   </application>
 
 </manifest>
