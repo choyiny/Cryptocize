@@ -48,10 +48,6 @@ public class SettingsFragment extends Fragment {
           //stores values
           preferences.edit().putString("Step Goals", Integer.toString(stepGoal)).apply();
           preferences.edit().putString("bitAmpt", Double.toString(bitAmt)).apply();
-//          TextView stepGoalTV = (TextView) gf.myView.findViewById(R.id.step_goal_tv);
-//          TextView bitAmtTV = gf.myView.findViewById(R.id.curr_step_tv);
-//          stepGoalTV.setText(Integer.toString(stepGoal));
-//          bitAmtTV.setText(Double.toString(bitAmt));
         }
 
       }

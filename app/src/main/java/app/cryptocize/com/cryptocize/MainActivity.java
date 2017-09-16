@@ -1,5 +1,8 @@
 package app.cryptocize.com.cryptocize;
 
+import android.content.SharedPreferences;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +16,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import app.cryptocize.com.cryptocize.fragments.AccountFragment;
@@ -21,12 +25,13 @@ import app.cryptocize.com.cryptocize.fragments.SettingsFragment;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.zip.Inflater;
 import org.w3c.dom.Text;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
+    private View view;
     private TextView mTextMessage;
-
     TextView steps_tv;
     SensorManager sensorManager;
     boolean walk = false;
@@ -42,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+          View holder;
           FragmentManager fm = getFragmentManager();
             switch (item.getItemId()) {
                 case R.id.navigation_home:
@@ -57,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                   fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                   fm.beginTransaction()
                       .replace(R.id.container
-                          , GoalsFragment.newInstance())
+                          , GoalsFragment.newInstance(), "goals_fragment")
                       .addToBackStack("string")
                       .commit();
                     //mTextMessage.setText(R.string.title_dashboard);
@@ -90,7 +96,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     SimpleDateFormat sdf = new SimpleDateFormat("hh:mm");
     Log.d("TIMEE: ", sdf.format(currTime));
 
-    steps_tv = (TextView) findViewById(R.id.curr_step_tv);
+    FragmentManager fm = getFragmentManager();
+    fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+    fm.beginTransaction()
+        .replace(R.id.container
+            , GoalsFragment.newInstance(), "goals_fragment")
+        .addToBackStack("string")
+        .commit();
+    GoalsFragment gm = (GoalsFragment)getFragmentManager().findFragmentByTag("goals_fragment");
+    steps_tv = (TextView) gm.get_view().findViewById(R.id.curr_step_tv);
 
     sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
