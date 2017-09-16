@@ -22,7 +22,9 @@ import com.coinbase.api.Coinbase;
 import com.coinbase.api.CoinbaseBuilder;
 import com.coinbase.api.exception.CoinbaseException;
 import java.io.IOException;
-import org.w3c.dom.Text;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -31,6 +33,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     TextView steps_tv;
     SensorManager sensorManager;
     boolean walk = false;
+    int step_counter = 0;
+    Date currTime = Calendar.getInstance().getTime();
+    SimpleDateFormat sdf = new SimpleDateFormat("hh:mm");
+    String curr_time = sdf.format(currTime);
+    //Log.d("TIMEE: ", sdf.format(currTime));
+    int saved_counter = 0;
 
   Coinbase coinbase;
 
@@ -87,6 +95,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    if (savedInstanceState != null) {
+      saved_counter = Integer.parseInt(savedInstanceState.getString("StepCounter"));
+    }
+    //Log.d("SAVED COUNTER: ", Integer.toString(saved_counter));
+    Date currTime = Calendar.getInstance().getTime();
+    SimpleDateFormat sdf = new SimpleDateFormat("hh:mm");
+    Log.d("TIMEE: ", sdf.format(currTime));
+
     steps_tv = (TextView) findViewById(R.id.curr_step_tv);
 
     welcomeUser();
@@ -131,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
   }
 
+  //start walking
   @Override
   protected void onResume() {
     super.onResume();
@@ -141,24 +158,46 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     } else {
       Toast.makeText(this, "Sensor not found.", Toast.LENGTH_SHORT).show();
     }
+
+    //reset counter
+    if(curr_time.equals("00:00")) {
+      step_counter = 0;
+    }
   }
 
   @Override
   protected void onPause() {
     super.onPause();
     walk = false;
+
+    //reset counter
+    if(curr_time.equals("00:00")) {
+      step_counter = 0;
+    }
   }
 
   @Override
   public void onSensorChanged(SensorEvent sensorEvent) {
+    //float step_count;
     if (walk) {
-      //steps_tv.setText(String.valueOf(sensorEvent.values[0]));
-      Log.d("STEPS: ", String.valueOf(sensorEvent.values[0]));
+      step_counter++;
+      //Log.d("STEPS: ", String.valueOf(sensorEvent.values[0]));
+      Log.d("STEPS: ", String.valueOf(step_counter));
+      if (steps_tv!=null) {
+        steps_tv.setText(String.valueOf(step_counter));
+      }
     }
   }
 
   @Override
   public void onAccuracyChanged(Sensor sensor, int i) {
 
+  }
+
+  //save step counter value
+  @Override
+  protected void onSaveInstanceState(Bundle b){
+    b.putString("StepCounter", Integer.toString(step_counter));
+    super.onSaveInstanceState(b);
   }
 }
