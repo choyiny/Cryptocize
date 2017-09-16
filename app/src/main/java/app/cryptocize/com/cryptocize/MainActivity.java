@@ -2,11 +2,11 @@ package app.cryptocize.com.cryptocize;
 
 import android.app.FragmentManager;
 import android.content.Context;
-import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -18,6 +18,10 @@ import android.widget.Toast;
 import app.cryptocize.com.cryptocize.fragments.AccountFragment;
 import app.cryptocize.com.cryptocize.fragments.GoalsFragment;
 import app.cryptocize.com.cryptocize.fragments.SettingsFragment;
+import com.coinbase.api.Coinbase;
+import com.coinbase.api.CoinbaseBuilder;
+import com.coinbase.api.exception.CoinbaseException;
+import java.io.IOException;
 import org.w3c.dom.Text;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
@@ -27,6 +31,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     TextView steps_tv;
     SensorManager sensorManager;
     boolean walk = false;
+
+  Coinbase coinbase;
+
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -70,17 +77,57 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+
+
+    // Authorize user on coinbase using API key
+    coinbase = new CoinbaseBuilder()
+        .withApiKey("", "")
+        .build();
+
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
     steps_tv = (TextView) findViewById(R.id.curr_step_tv);
 
+    welcomeUser();
+
     sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
-    mTextMessage = (TextView) findViewById(R.id.message);
+
     BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
     navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+
+  }
+
+  private class GetUserNameJob extends AsyncTask<String, Void, String> {
+
+    String username = "";
+    @Override
+    protected String doInBackground(String[] params) {
+      String userName = "";
+      try {
+        userName = coinbase.getUser().getName();
+      } catch (IOException e) {
+        e.printStackTrace();
+      } catch (CoinbaseException e) {
+        e.printStackTrace();
+      }
+      this.username = userName;
+      return userName;
+    }
+
+    @Override
+    protected void onPostExecute(String message) {
+      mTextMessage = (TextView) findViewById(R.id.message);
+      mTextMessage.setText("Welcome " + this.username);
+    }
+  }
+
+
+  protected void welcomeUser() {
+    GetUserNameJob job = new GetUserNameJob();
+    job.execute();
 
   }
 
