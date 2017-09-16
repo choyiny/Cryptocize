@@ -16,15 +16,25 @@ import app.cryptocize.com.cryptocize.R;
 
 public class GoalsFragment extends Fragment {
 
-  View myView;
+  static View myView;
   SharedPreferences preferences;
-
+  private static int steps = 0;
 
   public static GoalsFragment newInstance() {
     GoalsFragment fragment = new GoalsFragment();
     Bundle bundle = new Bundle();
     fragment.setArguments(bundle);
     return fragment;
+  }
+
+  public static void setSteps(int step) {
+    steps = step;
+    changeSteps();
+  }
+
+  public static void changeSteps() {
+    TextView currStepTV = myView.findViewById(R.id.curr_step_tv);
+    currStepTV.setText(steps);
   }
 
   @Nullable
