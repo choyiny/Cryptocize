@@ -6,17 +6,20 @@ import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import app.cryptocize.com.cryptocize.MainActivity;
 import app.cryptocize.com.cryptocize.R;
 
 
 public class GoalsFragment extends Fragment {
 
-  static View myView;
+  public static final String TAG = "goals_fragment";
+
   SharedPreferences preferences;
   private static int steps = 0;
 
@@ -27,32 +30,39 @@ public class GoalsFragment extends Fragment {
     return fragment;
   }
 
-  public static void setSteps(int step) {
-    steps = step;
-    changeSteps();
+  public void setSteps(int steps) {
+//    TextView currStepTV = myView.findViewById(R.id.curr_step_tv);
+//    currStepTV.setText(steps);
+    if (currStepTV != null) {
+      currStepTV.setText(String.valueOf(steps));
+    }
   }
 
-  public static void changeSteps() {
-    TextView currStepTV = myView.findViewById(R.id.curr_step_tv);
-    currStepTV.setText(steps);
-  }
+  TextView stepGoalTV;
+  TextView currStepTV;
 
   @Nullable
   @Override
   public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
       Bundle savedInstanceState) {
-    myView = inflater.inflate(R.layout.fragment_goals, container, false);
+    View rootView = inflater.inflate(R.layout.fragment_goals, container, false);
 
     preferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
-    TextView stepGoalTV = (TextView) myView.findViewById(R.id.step_goal_tv);
+    stepGoalTV = (TextView) rootView.findViewById(R.id.step_goal_tv);
+    currStepTV = (TextView) rootView.findViewById(R.id.curr_step_tv);
+
     stepGoalTV.setText(preferences.getString("Step Goals", ""));
 
-
-    return myView;
+    return rootView;
   }
 
+
   private void closeFragment() {
-    getActivity().getFragmentManager().popBackStack();
+
+  }
+
+  private void closeGoalsFragment() {
+    ((MainActivity) getActivity()).doCloseGoals();
   }
 }
 

@@ -33,6 +33,8 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
+  public static final String TAG_STEPS_COUNT = "stepsCount";
+
   TextView steps_tv;
   SensorManager sensorManager;
   boolean walk = false;
@@ -102,9 +104,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // get preferences
     preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-    if (savedInstanceState != null) {
-      saved_counter = Integer.parseInt(savedInstanceState.getString("StepCounter"));
-    }
+//    if (savedInstanceState != null) {
+////      saved_counter = Integer.parseInt(savedInstanceState.getString());
+//      if (savedInstanceState.containsKey(TAG_STEPS_COUNT)) {
+//        step_counter = savedInstanceState.get(TAG_STEPS_COUNT);
+//      }
+//
+//    }
+
+    step_counter = (savedInstanceState != null && savedInstanceState.containsKey(TAG_STEPS_COUNT)) ?
+        savedInstanceState.getInt(TAG_STEPS_COUNT) : 0;
+
     //Log.d("SAVED COUNTER: ", Integer.toString(saved_counter));
     Date currTime = Calendar.getInstance().getTime();
     SimpleDateFormat sdf = new SimpleDateFormat("hh:mm");
@@ -116,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     fm.beginTransaction()
         .replace(R.id.container
-            , goalsFragment, "goals_fragment")
+            , goalsFragment, GoalsFragment.TAG)
         .addToBackStack("string")
         .commit();
     Log.d("goalsFragment", "" + goalsFragment);
@@ -188,7 +198,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
       step_counter++;
       //Log.d("STEPS: ", String.valueOf(sensorEvent.values[0]));
       Log.d("STEPS: ", String.valueOf(step_counter));
-      GoalsFragment.setSteps(step_counter);
+//      GoalsFragment.setSteps(step_counter);
+      GoalsFragment goals = (GoalsFragment) getFragmentManager().findFragmentByTag(GoalsFragment.TAG);
+      if (goals != null) {
+        goals.setSteps(step_counter);
+      }
     }
   }
 
@@ -197,10 +211,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
   }
 
+  public void doCloseGoals() {
+    getFragmentManager().popBackStackImmediate();
+  }
+
   //save step counter value
   @Override
   protected void onSaveInstanceState(Bundle b) {
-    b.putString("StepCounter", Integer.toString(step_counter));
+    b.putInt(TAG_STEPS_COUNT, step_counter);
     super.onSaveInstanceState(b);
   }
 
