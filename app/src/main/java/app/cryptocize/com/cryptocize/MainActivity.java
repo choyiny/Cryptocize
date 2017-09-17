@@ -1,7 +1,12 @@
 package app.cryptocize.com.cryptocize;
 
+import static app.cryptocize.com.cryptocize.fragments.AccountFragment.params;
+import static java.security.AccessController.getContext;
+
+import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
@@ -27,6 +32,7 @@ import com.coinbase.Coinbase;
 import com.coinbase.OAuth;
 import com.coinbase.v1.entity.OAuthTokensResponse;
 import com.coinbase.v2.models.account.Account;
+import com.coinbase.v2.models.transactions.Transaction;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -53,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
   String curr_time = sdf.format(currTime);
   SharedPreferences preferences;
   private View view;
+  private boolean deducted = false;
 
   private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
       = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -202,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     } else {
       Toast.makeText(this, "Sensor not found.", Toast.LENGTH_SHORT).show();
     }
-
+    weeklyNotif();
   }
 
   protected void auth(View v) {
@@ -228,15 +235,75 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     resetDay();
   }
 
+  public void weeklyNotif() {
+    Calendar calendar = Calendar.getInstance();
+    int weekDay = calendar.get(Calendar.DAY_OF_WEEK);
+    final Coinbase coinbase = ((MainApplication) getApplicationContext()).getClient();
+    if (!deducted && weekDay == 1) {
+      AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+      builder1.setMessage("Would you like to continue this week?");
+      builder1.setCancelable(true);
+
+      builder1.setPositiveButton(
+          "Yes",
+          new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              Toast.makeText(getApplicationContext(), "Your automatic weekly amount is deducted.", Toast.LENGTH_SHORT).show();
+              coinbase.transferMoney(AccountFragment.vaultId, params, new CallbackWithRetrofit<Transaction>() {
+
+                @Override
+                public void onResponse(Call<Transaction> call, Response<Transaction> response,
+                    Retrofit retrofit) {
+                  params.put(AccountFragment.walletId, Double.parseDouble(AccountFragment.walletFunds.getText().toString())-AccountFragment.coin_amount*7);
+                  params.put(AccountFragment.vaultId, Double.parseDouble(params.get(AccountFragment.vaultId).toString()) + AccountFragment.coin_amount*7);
+                }
+
+                @Override
+                public void onFailure(Call<Transaction> call, Throwable t) {
+                  Toast.makeText(getApplicationContext(), "Transfer not completed.", Toast.LENGTH_SHORT).show();
+                }
+              });
+            }
+          });
+
+      builder1.setNegativeButton(
+          "No",
+          new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              dialog.cancel();
+            }
+          });
+
+      AlertDialog alert = builder1.create();
+      alert.show();
+    }
+  }
+
   protected void resetDay() {
+    Coinbase coinbase = ((MainApplication) getApplicationContext()).getClient();
     // reset every day
     if (curr_time.equals("00:00")) {
-      // step counter is smaller than goal
+      // step counter is greater/e q than goal
       if (this.step_counter >= Integer.parseInt(preferences.getString("Step Goals", "0"))) {
-        // TODO: give bitcoins back too their hot wallet
-        Log.d("giveback", "wallet funds to vault");
+        //transferring money from wallet -> vault
+        coinbase.transferMoney(AccountFragment.vaultId, params, new CallbackWithRetrofit<Transaction>() {
+
+          @Override
+          public void onResponse(Call<Transaction> call, Response<Transaction> response,
+              Retrofit retrofit) {
+            params.put(AccountFragment.vaultId, Double.parseDouble(params.get(AccountFragment.vaultId).toString()) - AccountFragment.coin_amount);
+            params.put(AccountFragment.walletId, Double.parseDouble(AccountFragment.walletFunds.toString()) + AccountFragment.coin_amount);
+          }
+
+          @Override
+          public void onFailure(Call<Transaction> call, Throwable t) {
+            Toast.makeText(getApplicationContext(), "Transfer not completed.", Toast.LENGTH_SHORT).show();
+          }
+        });
+        Log.d("giveback", "vault return to wallet");
       }
       // TODO: Store it to a separate file for number of steps each day
+
       Log.d("store", "num steps");
 
       // reset the steps for the next day

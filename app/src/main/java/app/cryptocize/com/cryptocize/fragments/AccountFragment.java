@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import app.cryptocize.com.cryptocize.MainApplication;
 import app.cryptocize.com.cryptocize.R;
 import app.cryptocize.com.cryptocize.models.AccountInformation;
@@ -21,21 +22,27 @@ import com.coinbase.v1.exception.CoinbaseException;
 import com.coinbase.v2.models.account.Account;
 import com.coinbase.v2.models.account.Accounts;
 import com.coinbase.v2.models.account.Data;
+import com.coinbase.v2.models.transactions.Transaction;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Objects;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 public class AccountFragment extends Fragment {
 
   View myView;
   Coinbase coinbase;
-  TextView walletFunds;
+  public static TextView walletFunds;
   AccountInformation accountInformation = new AccountInformation();
-  String walletId;
-  String vaultId;
-
+  public static String walletId;
+  public static String vaultId;
+  public static double coin_amount;
+  SharedPreferences preferences;
+  public static HashMap<String, Object> params = new HashMap<>();
 
   public static AccountFragment newInstance() {
     AccountFragment fragment = new AccountFragment();
@@ -55,6 +62,9 @@ public class AccountFragment extends Fragment {
 
     // load values
     walletFunds = myView.findViewById(R.id.wallet_funds);
+    coin_amount = Double.parseDouble(preferences.getString("bitAmt", ""));
+    params.put(vaultId, 0);
+    params.put(walletId, Double.parseDouble(walletFunds.toString()));
 
     getCryptocizeWalletInformation();
 
