@@ -160,7 +160,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
       // create vault
       HashMap<String, Object> vaultOptions = new HashMap<>();
+    Log.d("hashmap", vaultOptions.size() + "");
       vaultOptions.put("name", "Cryptocize Vault");
+    Log.d("hashmap", vaultOptions.size() + "");
       coinbase.createAccount(vaultOptions, new CallbackWithRetrofit<Account>() {
         @Override
         public void onResponse(Call<Account> call, Response<Account> response, Retrofit retrofit) {
@@ -215,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     try {
       oauth.beginAuthorization(MainActivity.this,
           API_KEY,
-          "wallet:user:read,wallet:accounts:read",
+          "wallet:user:read,wallet:accounts:read,wallet:accounts:create,wallet:transactions:transfer",
           "cryptocize://coinbase-oauth",
           null);
     } catch (Exception e) {
