@@ -13,8 +13,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+import app.cryptocize.com.cryptocize.MainApplication;
 import app.cryptocize.com.cryptocize.R;
+import com.coinbase.CallbackWithRetrofit;
+import com.coinbase.Coinbase;
+import com.coinbase.v2.models.transactions.Transaction;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import retrofit2.Call;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 
 public class SettingsFragment extends Fragment {
@@ -37,7 +46,6 @@ public class SettingsFragment extends Fragment {
     final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
     TextView bit_amount = myView.findViewById(R.id.curr_bit_am_tv);
     bit_amount.setText(preferences.getString("bitAmt", ""));
-
     Button button = (Button) myView.findViewById(R.id.submit_bt);
     button.setOnClickListener(new OnClickListener() {
       @Override
@@ -52,7 +60,27 @@ public class SettingsFragment extends Fragment {
           if (preferences.getString("bitAmt", "").equals("")) {
             preferences.edit().putString("bitAmt", bitAmt.toString()).apply();
           } else {
-            preferences.edit().putString("bitAmt", Double.toString((Double.parseDouble(preferences.getString("bitAmt", "")) + Double.parseDouble(bitAmt.toString())))).apply();
+            BigDecimal finalAmount = new BigDecimal(preferences.getString("bitAmt", "0")).add(new BigDecimal(bitAmt.toString()));
+            preferences.edit().putString("bitAmt", finalAmount.toString()).apply();
+
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("type", "transfer");
+            params.put("to", preferences.getString("cryptocize-vault", ""));
+            params.put("amount", bitAmt.toString());
+            Coinbase coinbase = ((MainApplication) getActivity().getApplicationContext()).getClient();
+            coinbase.transferMoney(preferences.getString("cryptocize-wallet", ""), params,
+                new CallbackWithRetrofit<Transaction>() {
+                  @Override
+                  public void onResponse(Call<Transaction> call, Response<Transaction> response,
+                      Retrofit retrofit) {
+                  //  Toast.makeText(getContext(), "Transfer Success", Toast.LENGTH_SHORT).show();
+                  }
+
+                  @Override
+                  public void onFailure(Call<Transaction> call, Throwable t) {
+
+                  }
+                });
           }
 
           EditText goal_field = myView.findViewById(R.id.goal_et);
