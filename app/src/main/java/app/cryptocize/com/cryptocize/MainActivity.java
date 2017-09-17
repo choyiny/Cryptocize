@@ -46,11 +46,6 @@ import retrofit2.Retrofit;
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
   public static final String TAG_STEPS_COUNT = "stepsCount";
-  public static final String API_KEY = "e9c477c59e4d863d46cc35787587aa7f4d8d7af8da8b6288763c41c36cc334ee";
-  public static final String API_SECRET = "d7383cb899cfa53f4dfa90c7b9511c91ca79b0ca2f89bb0e044b8e463beae338";
-
-
-  TextView usernameTV;
 
   SensorManager sensorManager;
   boolean walk = false;
@@ -66,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-      View holder;
       FragmentManager fm = getFragmentManager();
       switch (item.getItemId()) {
         case R.id.navigation_home:
@@ -109,9 +103,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // load the view
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-
-    // textview
-    usernameTV = (TextView) findViewById(R.id.username);
 
 
     // get preferences
