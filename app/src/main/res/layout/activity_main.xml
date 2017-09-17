@@ -14,22 +14,6 @@
     android:layout_height="0dp"
     android:layout_weight="1">
 
-    <Button
-      android:id="@+id/auth_btn"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_below="@+id/username"
-      android:layout_centerHorizontal="true"
-      android:text="Authorize Application"
-      android:onClick="auth"/>
-
-    <TextView
-      android:id="@+id/username"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_above="@+id/auth_btn"
-      android:text="welcome username" />
-
   </FrameLayout>
 
   <android.support.design.widget.BottomNavigationView
