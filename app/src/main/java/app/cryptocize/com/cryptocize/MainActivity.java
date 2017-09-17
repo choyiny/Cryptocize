@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
   protected void createWallet() {
     // wallet is not created yet
-//    if (!preferences.getBoolean("wallet-created", false)) {
+    if (!preferences.getBoolean("wallet-created", false)) {
       Coinbase coinbase = ((MainApplication) getApplicationContext()).getClient();
 
       // create vault
@@ -166,7 +166,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
       coinbase.createAccount(vaultOptions, new CallbackWithRetrofit<Account>() {
         @Override
         public void onResponse(Call<Account> call, Response<Account> response, Retrofit retrofit) {
-//          preferences.edit().putString("cryptocize-vault", response.body().getData().getId()).apply();
+          preferences.edit().putString("cryptocize-vault", response.body().getData().getId()).apply();
+          Log.d("vault id", response.body().getData().getId());
         }
 
         @Override
@@ -193,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
       preferences.edit().putBoolean("wallet-created", true).apply();
 
 
-//    }
+    }
   }
 
   //start walking
