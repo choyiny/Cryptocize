@@ -3,26 +3,22 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   tools:context="app.cryptocize.com.cryptocize.fragments.SettingsFragment"
-  android:background="@drawable/cryptosize_back">
+  android:background="@color/colorPrimary">
 
   <!-- TODO: Update blank fragment layout -->
-  <TextView
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_alignParentTop="true"
-    android:layout_alignParentStart="true" />
+
   <TextView
     android:id="@+id/set_goal_tv"
     android:textStyle="bold"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="115dp"
-    android:layout_marginStart="21dp"
-    android:layout_alignParentStart="true"
-    android:layout_alignParentTop="true"
+    android:layout_marginTop="86dp"
+    android:layout_marginStart="29dp"
     android:text="Set Goal:"
-    android:textColor="@android:color/black"
-    android:textSize="18sp" />
+    android:textColor="@color/textColour"
+    android:textSize="18sp"
+    android:layout_alignParentTop="true"
+    android:layout_alignParentStart="true" />
   <EditText
     android:id="@+id/goal_et"
     android:layout_width="150dp"
@@ -42,7 +38,7 @@
     android:layout_alignStart="@+id/set_goal_tv"
     android:layout_below="@+id/goal_et"
     android:text="Set Bitcoin Amount:"
-    android:textColor="@android:color/black"
+    android:textColor="@color/textColour"
     android:textSize="18sp" />
   <EditText
     android:id="@+id/bit_amt_et"
@@ -60,19 +56,42 @@
     android:layout_marginEnd="45dp"
     android:layout_alignEnd="@+id/set_amt_tv"
     android:layout_below="@+id/set_amt_tv"
-    android:text="(per day)"
-    android:textColor="@android:color/black"
+    android:text="(per week)"
+    android:textColor="@color/textColour"
     android:textColorLink="?android:attr/textColorTertiary"
     android:textSize="18sp" />
   <Button
     android:id="@+id/submit_bt"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="97dp"
+    android:layout_marginTop="53dp"
+    android:background="#ffffff"
+    android:text="submit"
+    android:textColor="@color/textColour"
+    android:layout_below="@+id/text_view_curram"
+    android:layout_centerHorizontal="true" />
+  <TextView
+    android:id="@+id/text_view_curram"
+    android:textStyle="bold"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="42dp"
+    android:layout_alignStart="@+id/set_amt_tv"
     android:layout_below="@+id/amt_addition_tv"
-    android:layout_centerHorizontal="true"
-    android:background="@android:color/holo_green_light"
-    android:backgroundTint="@android:color/holo_green_dark"
-    android:text="submit" />
+    android:text="Current Amount Loaded:"
+    android:textColor="@color/textColour"
+    android:textSize="18sp" />
+  <TextView
+    android:id="@+id/curr_bit_am_tv"
+    android:textStyle="bold"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignBottom="@+id/text_view_curram"
+    android:layout_alignEnd="@+id/bit_amt_et"
+    android:layout_toEndOf="@+id/text_view_curram"
+    android:text="---"
+    android:textAlignment="center"
+    android:textColor="@color/textColour"
+    android:textSize="18sp" />
 
 </RelativeLayout>

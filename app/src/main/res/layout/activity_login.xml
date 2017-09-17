@@ -1,16 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
   android:orientation="vertical" android:layout_width="match_parent"
   android:layout_height="match_parent"
-  android:background="@drawable/cryptosize_back">
+  android:background="@drawable/cryptosize_back"
+  android:backgroundTint="@color/colorPrimary">
+  <ImageView
+    android:layout_width="200dp"
+    android:layout_height="200dp"
+    android:background="@mipmap/ic_lightbulb"
+    android:layout_marginTop="124dp"
+    android:id="@+id/imageView"
+    android:layout_alignParentTop="true"
+    android:layout_centerHorizontal="true" />
+
+  <TextView
+    android:id="@+id/textView"
+    android:textStyle="bold"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="12dp"
+    android:layout_below="@+id/imageView"
+    android:layout_centerHorizontal="true"
+    android:fontFamily="monospace"
+    android:text="CRYPTOCIZE"
+    android:textAllCaps="true"
+    android:textColor="#ffffff"
+    android:textSize="40dp" />
 
   <Button
     android:id="@+id/auth_btn"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_below="@+id/username"
-    android:layout_centerHorizontal="true"
+    android:backgroundTint="#ffffff"
+    android:onClick="auth"
     android:text="Login with Coinbase"
-    android:onClick="auth"/>
+    android:textColor="#696969"
+    android:layout_marginTop="63dp"
+    android:layout_below="@+id/textView"
+    android:layout_centerHorizontal="true" />
 
-</LinearLayout>
+</RelativeLayout>

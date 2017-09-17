@@ -3,48 +3,59 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:id="@+id/goals_fragment"
+  android:background="@color/colorPrimary"
   tools:context="app.cryptocize.com.cryptocize.fragments.GoalsFragment">
 
   <!-- TODO: Update blank fragment layout -->
   <TextView
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent"
+    android:text="0" />
   <TextView
     android:id="@+id/num_steps_tv"
+    android:textStyle="bold"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="Number of Steps:"
-    android:textSize="24sp"
     android:layout_marginTop="62dp"
+    android:layout_alignStart="@+id/goal_tv"
     android:layout_below="@+id/goal_tv"
-    android:layout_alignStart="@+id/goal_tv" />
+    android:text="Steps Taken:"
+    android:textColor="@color/textColour"
+    android:textSize="24sp" />
   <TextView
     android:id="@+id/goal_tv"
+    android:textStyle="bold"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="42dp"
+    android:layout_marginTop="169dp"
+    android:layout_marginStart="57dp"
     android:text="Goal:"
     android:textSize="24sp"
-    android:layout_marginStart="35dp"
     android:layout_alignParentTop="true"
-    android:layout_alignParentStart="true" />
+    android:layout_alignParentStart="true"
+    android:textColor="@color/textColour"
+    />
   <TextView
     android:id="@+id/step_goal_tv"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:text="0"
     android:textSize="24sp"
+    android:textColor="@color/textColour"
     android:layout_alignBaseline="@+id/goal_tv"
     android:layout_alignBottom="@+id/goal_tv"
     android:layout_alignStart="@+id/curr_step_tv" />
+
   <TextView
     android:id="@+id/curr_step_tv"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:text="0"
+    android:textColor="@color/textColour"
     android:textSize="24sp"
     android:layout_alignBaseline="@+id/num_steps_tv"
     android:layout_alignBottom="@+id/num_steps_tv"
     android:layout_toEndOf="@+id/num_steps_tv"
-    android:layout_marginStart="71dp" />
+    android:layout_marginStart="79dp" />
 
 </RelativeLayout>

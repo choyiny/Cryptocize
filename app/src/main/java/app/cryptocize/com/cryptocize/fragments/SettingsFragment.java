@@ -35,6 +35,8 @@ public class SettingsFragment extends Fragment {
     myView = inflater.inflate(R.layout.fragment_settings, container, false);
 
     final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+    TextView bit_amount = myView.findViewById(R.id.curr_bit_am_tv);
+    bit_amount.setText(preferences.getString("bitAmt", ""));
 
     Button button = (Button) myView.findViewById(R.id.submit_bt);
     button.setOnClickListener(new OnClickListener() {
@@ -47,12 +49,18 @@ public class SettingsFragment extends Fragment {
           BigDecimal bitAmt = new BigDecimal(((EditText) myView.findViewById(R.id.bit_amt_et)).getText().toString());
           //stores values
           preferences.edit().putString("Step Goals", Integer.toString(stepGoal)).apply();
-          preferences.edit().putString("bitAmt", bitAmt.toString()).apply();
+          if (preferences.getString("bitAmt", "").equals("")) {
+            preferences.edit().putString("bitAmt", bitAmt.toString()).apply();
+          } else {
+            preferences.edit().putString("bitAmt", preferences.getString("bitAmt", "") + bitAmt.toString()).apply();
+          }
 
           EditText goal_field = myView.findViewById(R.id.goal_et);
           goal_field.setText("");
           EditText coin_field = myView.findViewById(R.id.bit_amt_et);
           coin_field.setText("");
+          TextView bit_amount = myView.findViewById(R.id.curr_bit_am_tv);
+          bit_amount.setText(preferences.getString("bitAmt", ""));
         }
 
       }

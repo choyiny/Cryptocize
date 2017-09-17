@@ -17,6 +17,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.Toast;
 import app.cryptocize.com.cryptocize.fragments.AccountFragment;
 import app.cryptocize.com.cryptocize.fragments.GoalsFragment;
