@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
               .addToBackStack("string")
               .commit();
           //mTextMessage.setText(R.string.title_dashboard);
+
           return true;
         case R.id.navigation_settings:
           fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -117,6 +118,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     step_counter = (savedInstanceState != null && savedInstanceState.containsKey(TAG_STEPS_COUNT)) ?
         savedInstanceState.getInt(TAG_STEPS_COUNT) : 0;
+
+    GoalsFragment goals = (GoalsFragment) getFragmentManager().findFragmentByTag(GoalsFragment.TAG);
+    if (goals != null) {
+      goals.setSteps(step_counter);
+    }
 
     //Log.d("SAVED COUNTER: ", Integer.toString(saved_counter));
     Date currTime = Calendar.getInstance().getTime();
@@ -173,7 +179,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
   protected void onPause() {
     super.onPause();
     walk = false;
-
     resetDay();
   }
 
@@ -195,7 +200,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
   @Override
   public void onSensorChanged(SensorEvent sensorEvent) {
-    //float step_count;
     if (walk) {
       step_counter++;
     }
@@ -205,6 +209,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
       if (goals != null) {
         goals.setSteps(step_counter);
       }
+    preferences.edit().putString("Step Count", Integer.toString(step_counter)).apply();
+
     //}
   }
 
@@ -260,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
       boolean found = false;
       if (coinbaseUserAccounts != null) {
         for (Account account: coinbaseUserAccounts.getAccounts()) {
-          if (account.getName().equals("cryptocize-wallet") {
+          if (account.getName().equals("cryptocize-wallet")) {
             found = true;
             break;
           }

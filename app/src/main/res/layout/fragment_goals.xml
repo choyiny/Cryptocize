@@ -41,7 +41,6 @@
     android:id="@+id/curr_step_tv"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="0"
     android:textSize="24sp"
     android:layout_alignBaseline="@+id/num_steps_tv"
     android:layout_alignBottom="@+id/num_steps_tv"

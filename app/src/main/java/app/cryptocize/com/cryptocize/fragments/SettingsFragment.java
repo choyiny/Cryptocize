@@ -48,6 +48,11 @@ public class SettingsFragment extends Fragment {
           //stores values
           preferences.edit().putString("Step Goals", Integer.toString(stepGoal)).apply();
           preferences.edit().putString("bitAmpt", Double.toString(bitAmt)).apply();
+
+          EditText goal_field = myView.findViewById(R.id.goal_et);
+          goal_field.setText("");
+          EditText coin_field = myView.findViewById(R.id.bit_amt_et);
+          coin_field.setText("");
         }
 
       }
