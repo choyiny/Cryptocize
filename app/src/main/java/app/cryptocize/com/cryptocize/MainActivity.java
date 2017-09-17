@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
               params2.put("type", "transfer");
               params2.put("to", preferences.getString("cryptocize-vault", ""));
               params2.put("amount", (new BigDecimal(preferences.getString("bitAmt", "0"))).multiply(new BigDecimal(7)).toString());
-              coinbase.transferMoney(AccountFragment.vaultId, params2, new CallbackWithRetrofit<Transaction>() {
+              coinbase.transferMoney(preferences.getString("cryptocize-wallet", ""), params2, new CallbackWithRetrofit<Transaction>() {
 
                 @Override
                 public void onResponse(Call<Transaction> call, Response<Transaction> response,
@@ -262,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         params1.put("type", "transfer");
         params1.put("to", preferences.getString("cryptocize-wallet", ""));
         params1.put("amount", preferences.getString("bitAmt", "0"));
-        coinbase.transferMoney(AccountFragment.vaultId, params1, new CallbackWithRetrofit<Transaction>() {
+        coinbase.transferMoney(preferences.getString("cryptocize-vault", ""), params1, new CallbackWithRetrofit<Transaction>() {
 
           @Override
           public void onResponse(Call<Transaction> call, Response<Transaction> response,
