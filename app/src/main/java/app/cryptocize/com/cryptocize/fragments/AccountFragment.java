@@ -4,15 +4,12 @@ import android.app.Fragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import app.cryptocize.com.cryptocize.R;
 import app.cryptocize.com.cryptocize.models.CoinbaseInformation;
-import com.coinbase.api.exception.CoinbaseException;
-import java.io.IOException;
 import java.io.Serializable;
 
 
