@@ -217,7 +217,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
           "Yes",
           new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-              Toast.makeText(getApplicationContext(), "Your automatic weekly amount is deducted.", Toast.LENGTH_SHORT).show();
               HashMap<String, Object> params2 = new HashMap<>();
               // Transfer from my wallet to vault
               params2.put("type", "transfer");
@@ -228,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 @Override
                 public void onResponse(Call<Transaction> call, Response<Transaction> response,
                     Retrofit retrofit) {
-
+                  Toast.makeText(getApplicationContext(), "Your automatic weekly amount is deducted.", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
