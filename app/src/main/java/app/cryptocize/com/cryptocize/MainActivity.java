@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
   SimpleDateFormat sdf = new SimpleDateFormat("hh:mm");
   String curr_time = sdf.format(currTime);
   SharedPreferences preferences;
-  private View view;
   private boolean deducted = false;
 
   private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -295,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
   @Override
   public void onSensorChanged(SensorEvent sensorEvent) {
-    if (walk) {
+    if (deducted && walk) { // (walk) {
       step_counter++;
     }
       //Log.d("STEPS: ", String.valueOf(sensorEvent.values[0]));
