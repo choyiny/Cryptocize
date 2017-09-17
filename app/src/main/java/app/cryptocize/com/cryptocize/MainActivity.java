@@ -27,10 +27,11 @@ import com.coinbase.CallbackWithRetrofit;
 import com.coinbase.Coinbase;
 import com.coinbase.OAuth;
 import com.coinbase.v1.entity.OAuthTokensResponse;
-import com.coinbase.v2.models.user.User;
+import com.coinbase.v2.models.account.Account;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -142,7 +143,49 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
     navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+    createWallets();
+  }
 
+
+  protected void createWallets() {
+    // wallet is not created yet
+    if (!preferences.getBoolean("wallet-created", false)) {
+      Coinbase coinbase = ((MainApplication) getApplicationContext()).getClient();
+      // create wallet
+      HashMap<String, Object> walletOptions = new HashMap<>();
+      walletOptions.put("name", "Cryptocize Wallet");
+      coinbase.createAccount(walletOptions, new CallbackWithRetrofit<Account>() {
+        @Override
+        public void onResponse(Call<Account> call, Response<Account> response, Retrofit retrofit) {
+          preferences.edit().putString("cryptocize-wallet", response.body().getData().getId()).apply();
+        }
+
+        @Override
+        public void onFailure(Call<Account> call, Throwable t) {
+          Log.d("fail", "wallet creation");
+        }
+      });
+      // create vault
+      HashMap<String, Object> vaultOptions = new HashMap<>();
+      vaultOptions.put("name", "Cryptocize Vault");
+      coinbase.createAccount(vaultOptions, new CallbackWithRetrofit<Account>() {
+        @Override
+        public void onResponse(Call<Account> call, Response<Account> response, Retrofit retrofit) {
+          preferences.edit().putString("cryptocize-vault", response.body().getData().getId()).apply();
+        }
+
+        @Override
+        public void onFailure(Call<Account> call, Throwable t) {
+          Log.d("fail", "vault creation");
+        }
+      });
+
+      // set preferences - wallet is created
+      preferences.edit().putBoolean("wallet-created", true).apply();
+
+    } else {
+      Log.d("wallet", "already created");
+    }
   }
 
   //start walking
@@ -229,37 +272,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     super.onSaveInstanceState(b);
   }
 
-  private void getUser() {
-    Coinbase coinbase = ((MainApplication)getApplicationContext()).getClient();
-    coinbase.getUser(new CallbackWithRetrofit<User>() {
-      @Override
-      public void onResponse(Call<User> call, Response<User> response, Retrofit retrofit) {
-        if (response.isSuccessful()) {
-          usernameTV.setText("User: " + response.body().getData().getName());
-          Log.d("username", response.body().getData().getName());
-        } else
-          Toast.makeText(getBaseContext(), "no response", Toast.LENGTH_SHORT).show();
-      }
-
-      @Override
-      public void onFailure(Call<User> call, Throwable t) {
-        Toast.makeText(getBaseContext(), "Error authenticating", Toast.LENGTH_SHORT).show();
-      }
-    });
-  }
-
-  private class CreateWalletsForApplication extends AsyncTask<String, Void, String> {
-    private Intent mIntent;
-
-    public CreateWalletsForApplication(Intent intent) {
-      mIntent = intent;
-    }
-
-    @Override
-    public String doInBackground(String[] params) {
-      return "Hello";
-    }
-  }
 
   public class CompleteAuthorizationTask extends AsyncTask<Void, Void, OAuthTokensResponse> {
     private Intent mIntent;
@@ -286,7 +298,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onPostExecute(OAuthTokensResponse tokens) {
       Coinbase coinbase = ((MainApplication)getApplicationContext()).getClient();
       coinbase.init(MainActivity.this, tokens.getAccessToken());
-      getUser();
     }
   }
 
