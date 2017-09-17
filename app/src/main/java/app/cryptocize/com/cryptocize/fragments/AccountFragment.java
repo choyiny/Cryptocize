@@ -84,7 +84,7 @@ public class AccountFragment extends Fragment {
     coinbase.getAccount(vaultId, new CallbackWithRetrofit<Account>() {
       @Override
       public void onResponse(Call<Account> call, Response<Account> response, Retrofit retrofit) {
-        Log.d("vault funds", response.body().getData().getBalance().getAmount());
+//        Log.d("vault funds", response.body().getData().getBalance().getAmount());
       }
 
       @Override

@@ -107,12 +107,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // textview
     usernameTV = (TextView) findViewById(R.id.username);
 
-    // In the Activity we set up to listen to our redirect URI
-    Intent intent = getIntent();
-    if (intent != null && intent.getAction() != null && intent.getAction().equals("android.intent.action.VIEW")) {
-      new CompleteAuthorizationTask(intent).execute();
-    }
-
 
     // get preferences
     preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -148,53 +142,50 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
     navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-    preferences.edit().putBoolean("wallet-created,", true).apply();
 
+    // set preferences - wallet is created
+    if (!preferences.getBoolean("wallet-created", false)) {
+      createWallet();
+    }
+    preferences.edit().putBoolean("wallet-created", true).apply();
   }
 
 
   protected void createWallet() {
-    // wallet is not created yet
-    if (!preferences.getBoolean("wallet-created", false)) {
-      Coinbase coinbase = ((MainApplication) getApplicationContext()).getClient();
+    Coinbase coinbase = ((MainApplication) getApplicationContext()).getClient();
 
-      // create vault
-      HashMap<String, Object> vaultOptions = new HashMap<>();
+    // create vault
+    HashMap<String, Object> vaultOptions = new HashMap<>();
     Log.d("hashmap", vaultOptions.size() + "");
-      vaultOptions.put("name", "Cryptocize Vault");
+    vaultOptions.put("name", "Cryptocize Vault");
     Log.d("hashmap", vaultOptions.size() + "");
-      coinbase.createAccount(vaultOptions, new CallbackWithRetrofit<Account>() {
-        @Override
-        public void onResponse(Call<Account> call, Response<Account> response, Retrofit retrofit) {
-          preferences.edit().putString("cryptocize-vault", response.body().getData().getId()).apply();
-          Log.d("vault id", response.body().getData().getId());
-        }
+    coinbase.createAccount(vaultOptions, new CallbackWithRetrofit<Account>() {
+      @Override
+      public void onResponse(Call<Account> call, Response<Account> response, Retrofit retrofit) {
+        preferences.edit().putString("cryptocize-vault", response.body().getData().getId()).apply();
+      }
 
-        @Override
-        public void onFailure(Call<Account> call, Throwable t) {
-          Log.d("fail", "vault creation");
-        }
-      });
+      @Override
+      public void onFailure(Call<Account> call, Throwable t) {
+        Log.d("fail", "vault creation");
+      }
+    });
 
-      coinbase.getAccounts(null, new CallbackWithRetrofit<Accounts>() {
-        @Override
-        public void onResponse(Call<Accounts> call, Response<Accounts> response,
-            Retrofit retrofit) {
+    coinbase.getAccounts(null, new CallbackWithRetrofit<Accounts>() {
+      @Override
+      public void onResponse(Call<Accounts> call, Response<Accounts> response,
+          Retrofit retrofit) {
 
-          preferences.edit().putString("cryptocize-wallet", response.body().getData().get(0).getId()).apply();
-        }
+        preferences.edit().putString("cryptocize-wallet", response.body().getData().get(0).getId()).apply();
+      }
 
-        @Override
-        public void onFailure(Call<Accounts> call, Throwable t) {
+      @Override
+      public void onFailure(Call<Accounts> call, Throwable t) {
 
-        }
-      });
-
-      // set preferences - wallet is created
-      preferences.edit().putBoolean("wallet-created", true).apply();
+      }
+    });
 
 
-    }
   }
 
   //start walking
@@ -211,20 +202,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
   }
 
-  protected void auth(View v) {
-    // oauth
-    final OAuth oauth = ((MainApplication) getApplicationContext()).getOAuth();
-
-    try {
-      oauth.beginAuthorization(MainActivity.this,
-          API_KEY,
-          "wallet:user:read,wallet:accounts:read,wallet:accounts:create,wallet:transactions:transfer",
-          "cryptocize://coinbase-oauth",
-          null);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
 
   @Override
   protected void onPause() {
@@ -279,35 +256,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
   protected void onSaveInstanceState(Bundle b) {
     b.putInt(TAG_STEPS_COUNT, step_counter);
     super.onSaveInstanceState(b);
-  }
-
-  public class CompleteAuthorizationTask extends AsyncTask<Void, Void, OAuthTokensResponse> {
-    private Intent mIntent;
-
-    public CompleteAuthorizationTask(Intent intent) {
-      mIntent = intent;
-    }
-
-    @Override
-    public OAuthTokensResponse doInBackground(Void... params) {
-      try {
-        final OAuth oauth = ((MainApplication)getApplicationContext()).getOAuth();
-        return oauth.completeAuthorization(MainActivity.this,
-            API_KEY,
-            API_SECRET,
-            mIntent.getData());
-      } catch (Exception e) {
-        Toast.makeText(getBaseContext(), "authorization failed", Toast.LENGTH_SHORT);
-        return null;
-      }
-    }
-
-    @Override
-    public void onPostExecute(OAuthTokensResponse tokens) {
-      Coinbase coinbase = ((MainApplication)getApplicationContext()).getClient();
-      coinbase.init(MainActivity.this, tokens.getAccessToken());
-      createWallet();
-    }
   }
 
 }
