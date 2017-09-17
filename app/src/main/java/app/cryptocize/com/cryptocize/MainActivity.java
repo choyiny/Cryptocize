@@ -288,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
   @Override
   public void onSensorChanged(SensorEvent sensorEvent) {
-    if (deducted && walk) { // (walk) {
+    if (walk) { // (walk) {
       step_counter++;
     }
       //Log.d("STEPS: ", String.valueOf(sensorEvent.values[0]));
