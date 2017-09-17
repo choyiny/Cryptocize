@@ -1,19 +1,15 @@
 package app.cryptocize.com.cryptocize;
 
-import static app.cryptocize.com.cryptocize.fragments.AccountFragment.params;
-import static java.security.AccessController.getContext;
-
 import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.AsyncTask;
+import android.icu.math.BigDecimal;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -21,16 +17,12 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 import app.cryptocize.com.cryptocize.fragments.AccountFragment;
 import app.cryptocize.com.cryptocize.fragments.GoalsFragment;
 import app.cryptocize.com.cryptocize.fragments.SettingsFragment;
 import com.coinbase.CallbackWithRetrofit;
 import com.coinbase.Coinbase;
-import com.coinbase.OAuth;
-import com.coinbase.v1.entity.OAuthTokensResponse;
 import com.coinbase.v2.models.account.Account;
 import com.coinbase.v2.models.account.Accounts;
 import com.coinbase.v2.models.transactions.Transaction;
@@ -211,7 +203,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Calendar calendar = Calendar.getInstance();
     int weekDay = calendar.get(Calendar.DAY_OF_WEEK);
     final Coinbase coinbase = ((MainApplication) getApplicationContext()).getClient();
-    if (AccountFragment.coin_amount != 0 && !deducted && weekDay == 1) {
+    if (new BigDecimal(AccountFragment.coin_amount) != BigDecimal.ZERO &&
+        !deducted && weekDay == 1) {
       AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
       builder1.setMessage("Would you like to continue this week?");
       builder1.setCancelable(true);
@@ -221,13 +214,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
           new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
               Toast.makeText(getApplicationContext(), "Your automatic weekly amount is deducted.", Toast.LENGTH_SHORT).show();
-              coinbase.transferMoney(AccountFragment.vaultId, params, new CallbackWithRetrofit<Transaction>() {
+              HashMap<String, Object> params2 = new HashMap<>();
+              // Transfer from my wallet to vault
+              params2.put("type", "transfer");
+              params2.put("to", preferences.getString("cryptocize-vault", ""));
+              params2.put("amount", (new BigDecimal(preferences.getString("bitAmt", "0"))).multiply(new BigDecimal(7)).toString());
+              coinbase.transferMoney(AccountFragment.vaultId, params2, new CallbackWithRetrofit<Transaction>() {
 
                 @Override
                 public void onResponse(Call<Transaction> call, Response<Transaction> response,
                     Retrofit retrofit) {
-                  params.put(AccountFragment.walletId, Double.parseDouble(AccountFragment.walletFunds.getText().toString())-AccountFragment.coin_amount*7);
-                  params.put(AccountFragment.vaultId, Double.parseDouble(params.get(AccountFragment.vaultId).toString()) + AccountFragment.coin_amount*7);
+
                 }
 
                 @Override
@@ -257,14 +254,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     if (curr_time.equals("00:00")) {
       // step counter is greater/e q than goal
       if (this.step_counter >= Integer.parseInt(preferences.getString("Step Goals", "0"))) {
-        //transferring money from wallet -> vault
-        coinbase.transferMoney(AccountFragment.vaultId, params, new CallbackWithRetrofit<Transaction>() {
+        //transferring money from vault -> wallet
+        HashMap<String, Object> params1 = new HashMap<>();
+        params1.put("type", "transfer");
+        params1.put("to", preferences.getString("cryptocize-wallet", ""));
+        params1.put("amount", preferences.getString("bitAmt", "0"));
+        coinbase.transferMoney(AccountFragment.vaultId, params1, new CallbackWithRetrofit<Transaction>() {
 
           @Override
           public void onResponse(Call<Transaction> call, Response<Transaction> response,
               Retrofit retrofit) {
-            params.put(AccountFragment.vaultId, Double.parseDouble(params.get(AccountFragment.vaultId).toString()) - AccountFragment.coin_amount);
-            params.put(AccountFragment.walletId, Double.parseDouble(AccountFragment.walletFunds.toString()) + AccountFragment.coin_amount);
+            Toast.makeText(getApplicationContext(), "Transfer completed", Toast.LENGTH_SHORT).show();
           }
 
           @Override

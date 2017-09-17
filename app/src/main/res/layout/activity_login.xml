@@ -10,7 +10,7 @@
     android:layout_height="wrap_content"
     android:layout_below="@+id/username"
     android:layout_centerHorizontal="true"
-    android:text="Authorize Application"
+    android:text="Login with Coinbase"
     android:onClick="auth"/>
 
 </LinearLayout>

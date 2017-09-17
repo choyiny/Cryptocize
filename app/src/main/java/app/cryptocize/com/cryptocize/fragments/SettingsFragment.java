@@ -44,10 +44,10 @@ public class SettingsFragment extends Fragment {
         if (((EditText) myView.findViewById(R.id.goal_et)).getText().toString() != ""||
             ((EditText) myView.findViewById(R.id.bit_amt_et)).getText().toString() != ""){
           int stepGoal = Integer.valueOf(((EditText) myView.findViewById(R.id.goal_et)).getText().toString());
-          double bitAmt = Double.valueOf(((EditText) myView.findViewById(R.id.bit_amt_et)).getText().toString());
+          BigDecimal bitAmt = new BigDecimal(((EditText) myView.findViewById(R.id.bit_amt_et)).getText().toString());
           //stores values
           preferences.edit().putString("Step Goals", Integer.toString(stepGoal)).apply();
-          preferences.edit().putString("bitAmt", Double.toString(bitAmt)).apply();
+          preferences.edit().putString("bitAmt", bitAmt.toString()).apply();
 
           EditText goal_field = myView.findViewById(R.id.goal_et);
           goal_field.setText("");

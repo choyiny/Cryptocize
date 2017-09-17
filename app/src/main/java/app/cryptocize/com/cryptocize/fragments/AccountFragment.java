@@ -40,9 +40,8 @@ public class AccountFragment extends Fragment {
   AccountInformation accountInformation = new AccountInformation();
   public static String walletId;
   public static String vaultId;
-  public static double coin_amount;
+  public static String coin_amount;
   SharedPreferences preferences;
-  public static HashMap<String, Object> params = new HashMap<>();
 
   public static AccountFragment newInstance() {
     AccountFragment fragment = new AccountFragment();
@@ -56,15 +55,16 @@ public class AccountFragment extends Fragment {
   public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
       Bundle savedInstanceState) {
 
+    preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+
+
     coinbase = ((MainApplication) getActivity().getApplicationContext()).getClient();
 
     myView = inflater.inflate(R.layout.fragment_account, container, false);
 
     // load values
     walletFunds = myView.findViewById(R.id.wallet_funds);
-    coin_amount = Double.parseDouble(preferences.getString("bitAmt", ""));
-    params.put(vaultId, 0);
-    params.put(walletId, Double.parseDouble(walletFunds.toString()));
+    coin_amount = preferences.getString("bitAmt", "0");
 
     getCryptocizeWalletInformation();
 
