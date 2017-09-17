@@ -65,13 +65,13 @@ public class AccountFragment extends Fragment {
   private void getCryptocizeWalletInformation() {
     // get preferences
     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
-    walletId = preferences.getString("cryptocize-wallet", "");
+    walletId = preferences.getString("hot-wallet", "");
     vaultId = preferences.getString("cryptocize-vault", "");
 
     coinbase.getAccount(walletId, new CallbackWithRetrofit<Account>() {
       @Override
       public void onResponse(Call<Account> call, Response<Account> response, Retrofit retrofit) {
-        Log.d("wallet funds", response.body().getData().getBalance().getAmount().toString());
+        Log.d("wallet funds", response.body().getData().getBalance().getAmount());
       }
 
       @Override
