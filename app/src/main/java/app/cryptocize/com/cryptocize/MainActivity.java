@@ -23,7 +23,6 @@ import android.widget.Toast;
 import app.cryptocize.com.cryptocize.fragments.AccountFragment;
 import app.cryptocize.com.cryptocize.fragments.GoalsFragment;
 import app.cryptocize.com.cryptocize.fragments.SettingsFragment;
-import app.cryptocize.com.cryptocize.models.CoinbaseInformation;
 import com.coinbase.CallbackWithRetrofit;
 import com.coinbase.Coinbase;
 import com.coinbase.OAuth;
@@ -54,7 +53,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
   String curr_time = sdf.format(currTime);
   SharedPreferences preferences;
   private View view;
-  private CoinbaseInformation coinbaseInfo;
 
   private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
       = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -68,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
           fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
           fm.beginTransaction()
               .replace(R.id.container
-                  , AccountFragment.newInstance(coinbaseInfo))
+                  , AccountFragment.newInstance())
               .addToBackStack("string")
               .commit();
           //mTextMessage.setText(R.string.title_home);
@@ -248,6 +246,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Toast.makeText(getBaseContext(), "Error authenticating", Toast.LENGTH_SHORT).show();
       }
     });
+  }
+
+  private class CreateWalletsForApplication extends AsyncTask<String, Void, String> {
+    private Intent mIntent;
+
+    public CreateWalletsForApplication(Intent intent) {
+      mIntent = intent;
+    }
+
+    @Override
+    public String doInBackground(String[] params) {
+      return "Hello";
+    }
   }
 
   public class CompleteAuthorizationTask extends AsyncTask<Void, Void, OAuthTokensResponse> {
