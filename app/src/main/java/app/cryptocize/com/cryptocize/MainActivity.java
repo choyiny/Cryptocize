@@ -211,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Calendar calendar = Calendar.getInstance();
     int weekDay = calendar.get(Calendar.DAY_OF_WEEK);
     final Coinbase coinbase = ((MainApplication) getApplicationContext()).getClient();
-    if (!deducted && weekDay == 1) {
+    if (AccountFragment.coin_amount != 0 && !deducted && weekDay == 1) {
       AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
       builder1.setMessage("Would you like to continue this week?");
       builder1.setCancelable(true);
