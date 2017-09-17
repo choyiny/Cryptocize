@@ -157,8 +157,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // wallet is not created yet
 //    if (!preferences.getBoolean("wallet-created", false)) {
       Coinbase coinbase = ((MainApplication) getApplicationContext()).getClient();
-      // create wallet
-      HashMap<String, Object> walletOptions = new HashMap<>();
+
       // create vault
       HashMap<String, Object> vaultOptions = new HashMap<>();
       vaultOptions.put("name", "Cryptocize Vault");
@@ -179,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         public void onResponse(Call<Accounts> call, Response<Accounts> response,
             Retrofit retrofit) {
 
-          preferences.edit().putString("hot-wallet", response.body().getData().get(0).getId()).apply();
+          preferences.edit().putString("cryptocize-wallet", response.body().getData().get(0).getId()).apply();
         }
 
         @Override
@@ -277,19 +276,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
   protected void onSaveInstanceState(Bundle b) {
     b.putInt(TAG_STEPS_COUNT, step_counter);
     super.onSaveInstanceState(b);
-  }
-
-  private class CreateWalletsForApplication extends AsyncTask<String, Void, String> {
-    private Intent mIntent;
-
-    public CreateWalletsForApplication(Intent intent) {
-      mIntent = intent;
-    }
-
-    @Override
-    public String doInBackground(String[] params) {
-      return "Hello";
-    }
   }
 
   public class CompleteAuthorizationTask extends AsyncTask<Void, Void, OAuthTokensResponse> {
