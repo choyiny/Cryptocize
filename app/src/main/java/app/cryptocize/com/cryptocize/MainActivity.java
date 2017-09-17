@@ -147,8 +147,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
     navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
-    createWallets();
   }
 
 
@@ -217,6 +215,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
           "wallet:user:read,wallet:accounts:read",
           "cryptocize://coinbase-oauth",
           null);
+      createWallets();
     } catch (Exception e) {
       e.printStackTrace();
     }
