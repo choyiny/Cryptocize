@@ -52,7 +52,7 @@ public class SettingsFragment extends Fragment {
           if (preferences.getString("bitAmt", "").equals("")) {
             preferences.edit().putString("bitAmt", bitAmt.toString()).apply();
           } else {
-            preferences.edit().putString("bitAmt", preferences.getString("bitAmt", "") + bitAmt.toString()).apply();
+            preferences.edit().putString("bitAmt", Double.toString((Double.parseDouble(preferences.getString("bitAmt", "")) + Double.parseDouble(bitAmt.toString())))).apply();
           }
 
           EditText goal_field = myView.findViewById(R.id.goal_et);
