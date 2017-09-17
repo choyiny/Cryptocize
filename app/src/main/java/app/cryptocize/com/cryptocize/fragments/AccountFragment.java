@@ -2,8 +2,10 @@ package app.cryptocize.com.cryptocize.fragments;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,7 +18,9 @@ import app.cryptocize.com.cryptocize.models.AccountInformation;
 import com.coinbase.CallbackWithRetrofit;
 import com.coinbase.Coinbase;
 import com.coinbase.v1.exception.CoinbaseException;
+import com.coinbase.v2.models.account.Account;
 import com.coinbase.v2.models.account.Accounts;
+import com.coinbase.v2.models.account.Data;
 import java.io.IOException;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -29,6 +33,8 @@ public class AccountFragment extends Fragment {
   Coinbase coinbase;
   TextView walletFunds;
   AccountInformation accountInformation = new AccountInformation();
+  String walletId;
+  String vaultId;
 
 
   public static AccountFragment newInstance() {
@@ -57,19 +63,20 @@ public class AccountFragment extends Fragment {
   }
 
   private void getCryptocizeWalletInformation() {
-    coinbase.getAccounts(null, new CallbackWithRetrofit<Accounts>() {
+    // get preferences
+    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+    walletId = preferences.getString("cryptocize-wallet", "");
+    vaultId = preferences.getString("cryptocize-vault", "");
+
+    coinbase.getAccount(walletId, new CallbackWithRetrofit<Account>() {
       @Override
-      public void onResponse(Call<Accounts> call, Response<Accounts> response, Retrofit retrofit) {
-        if (!response.isSuccessful()) {
-          Log.d("response", "fail");
-        }
-        walletFunds.setText(response.body().getData().get(0).getName());
-        Log.d("test", response.body().getData().get(0).getBalance().getAmount().toString());
+      public void onResponse(Call<Account> call, Response<Account> response, Retrofit retrofit) {
+
       }
 
       @Override
-      public void onFailure(Call<Accounts> call, Throwable t) {
-        Log.d("fail", "fail");
+      public void onFailure(Call<Account> call, Throwable t) {
+
       }
     });
   }

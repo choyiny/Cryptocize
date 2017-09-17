@@ -17,7 +17,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import app.cryptocize.com.cryptocize.fragments.AccountFragment;
@@ -27,10 +26,11 @@ import com.coinbase.CallbackWithRetrofit;
 import com.coinbase.Coinbase;
 import com.coinbase.OAuth;
 import com.coinbase.v1.entity.OAuthTokensResponse;
-import com.coinbase.v2.models.user.User;
+import com.coinbase.v2.models.account.Account;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -148,7 +148,49 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
     navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+    createWallets();
+  }
 
+
+  protected void createWallets() {
+    // wallet is not created yet
+    if (!preferences.getBoolean("wallet-created", false)) {
+      Coinbase coinbase = ((MainApplication) getApplicationContext()).getClient();
+      // create wallet
+      HashMap<String, Object> walletOptions = new HashMap<>();
+      walletOptions.put("name", "Cryptocize Wallet");
+      coinbase.createAccount(walletOptions, new CallbackWithRetrofit<Account>() {
+        @Override
+        public void onResponse(Call<Account> call, Response<Account> response, Retrofit retrofit) {
+          preferences.edit().putString("cryptocize-wallet", response.body().getData().getId()).apply();
+        }
+
+        @Override
+        public void onFailure(Call<Account> call, Throwable t) {
+          Log.d("fail", "wallet creation");
+        }
+      });
+      // create vault
+      HashMap<String, Object> vaultOptions = new HashMap<>();
+      vaultOptions.put("name", "Cryptocize Vault");
+      coinbase.createAccount(vaultOptions, new CallbackWithRetrofit<Account>() {
+        @Override
+        public void onResponse(Call<Account> call, Response<Account> response, Retrofit retrofit) {
+          //preferences.edit().putString("cryptocize-vault", response.body().getData().getId()).apply();
+        }
+
+        @Override
+        public void onFailure(Call<Account> call, Throwable t) {
+          Log.d("fail", "vault creation");
+        }
+      });
+
+      // set preferences - wallet is created
+      preferences.edit().putBoolean("wallet-created", true).apply();
+
+    } else {
+      Log.d("wallet", "already created");
+    }
   }
 
   //start walking
