@@ -2,6 +2,7 @@ package app.cryptocize.com.cryptocize;
 
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -16,42 +17,43 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import app.cryptocize.com.cryptocize.fragments.AccountFragment;
 import app.cryptocize.com.cryptocize.fragments.GoalsFragment;
 import app.cryptocize.com.cryptocize.fragments.SettingsFragment;
-import app.cryptocize.com.cryptocize.models.CoinbaseInformation;
-import com.coinbase.api.Coinbase;
-import com.coinbase.api.CoinbaseBuilder;
-import com.coinbase.api.entity.Account;
-import com.coinbase.api.entity.Account.Type;
-import com.coinbase.api.entity.AccountsResponse;
-import com.coinbase.api.exception.CoinbaseException;
-import java.io.IOException;
+import com.coinbase.CallbackWithRetrofit;
+import com.coinbase.Coinbase;
+import com.coinbase.OAuth;
+import com.coinbase.v1.entity.OAuthTokensResponse;
+import com.coinbase.v2.models.user.User;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import retrofit2.Call;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
   public static final String TAG_STEPS_COUNT = "stepsCount";
+  public static final String API_KEY = "e9c477c59e4d863d46cc35787587aa7f4d8d7af8da8b6288763c41c36cc334ee";
+  public static final String API_SECRET = "d7383cb899cfa53f4dfa90c7b9511c91ca79b0ca2f89bb0e044b8e463beae338";
 
-  TextView steps_tv;
+
+  TextView usernameTV;
+
   SensorManager sensorManager;
   boolean walk = false;
   int step_counter = 0;
   Date currTime = Calendar.getInstance().getTime();
   SimpleDateFormat sdf = new SimpleDateFormat("hh:mm");
   String curr_time = sdf.format(currTime);
-  //Log.d("TIMEE: ", sdf.format(currTime));
-  int saved_counter = 0;
   SharedPreferences preferences;
-  Coinbase coinbase;
   private View view;
-  private TextView mTextMessage;
-  private CoinbaseInformation coinbaseInfo;
+
   private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
       = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -64,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
           fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
           fm.beginTransaction()
               .replace(R.id.container
-                  , AccountFragment.newInstance(coinbaseInfo))
+                  , AccountFragment.newInstance())
               .addToBackStack("string")
               .commit();
           //mTextMessage.setText(R.string.title_home);
@@ -97,24 +99,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
   @Override
   protected void onCreate(Bundle savedInstanceState) {
 
-    // Authorize user on coinbase using API key
-    coinbase = new CoinbaseBuilder()
-        .withApiKey("N3c9qH9TrT7Qy8zb", "ahhGYPcr2KfyBHdibdV5Dyaa4o5MSsbU")
-        .build();
-
+    // load the view
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    // textview
+    usernameTV = (TextView) findViewById(R.id.username);
+
+    // In the Activity we set up to listen to our redirect URI
+    Intent intent = getIntent();
+    if (intent != null && intent.getAction() != null && intent.getAction().equals("android.intent.action.VIEW")) {
+      new CompleteAuthorizationTask(intent).execute();
+    }
+
+
     // get preferences
     preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-//    if (savedInstanceState != null) {
-////      saved_counter = Integer.parseInt(savedInstanceState.getString());
-//      if (savedInstanceState.containsKey(TAG_STEPS_COUNT)) {
-//        step_counter = savedInstanceState.get(TAG_STEPS_COUNT);
-//      }
-//
-//    }
 
     step_counter = (savedInstanceState != null && savedInstanceState.containsKey(TAG_STEPS_COUNT)) ?
         savedInstanceState.getInt(TAG_STEPS_COUNT) : 0;
@@ -142,22 +142,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Log.d("view", "" + goalsFragment.getView());
     //steps_tv = (TextView) goalsFragment.getView().findViewById(R.id.curr_step_tv);
 
-    welcomeUser();
 
     sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
     BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
     navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-
-  }
-
-  /**
-   * This renders the user name to the screen
-   */
-  protected void welcomeUser() {
-    GetCoinBaseInformation job = new GetCoinBaseInformation();
-    job.execute();
 
   }
 
@@ -173,6 +163,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
       Toast.makeText(this, "Sensor not found.", Toast.LENGTH_SHORT).show();
     }
 
+  }
+
+  protected void auth(View v) {
+    // oauth
+    final OAuth oauth = ((MainApplication) getApplicationContext()).getOAuth();
+
+    try {
+      oauth.beginAuthorization(MainActivity.this,
+          API_KEY,
+          "wallet:user:read,wallet:accounts:read",
+          "cryptocize://coinbase-oauth",
+          null);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   @Override
@@ -230,87 +235,45 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     super.onSaveInstanceState(b);
   }
 
-  /**
-   * Getting all coinbase information on load
-   */
-  private class GetCoinBaseInformation extends AsyncTask<String, Void, String> {
+  private class CreateWalletsForApplication extends AsyncTask<String, Void, String> {
+    private Intent mIntent;
 
-    String username = "";
-
-    @Override
-    protected String doInBackground(String[] params) {
-      String userName = "";
-
-      // get username of user
-      try {
-        userName = coinbase.getUser().getName();
-      } catch (IOException e) {
-        e.printStackTrace();
-      } catch (CoinbaseException e) {
-        e.printStackTrace();
-      }
-      this.username = userName;
-      coinbaseInfo = new CoinbaseInformation(userName);
-
-      // get all wallets of the user
-      AccountsResponse coinbaseUserAccounts = null;
-      try {
-        coinbaseUserAccounts = coinbase.getAccounts();
-      } catch (IOException e) {
-        e.printStackTrace();
-      } catch (CoinbaseException e2) {
-        e2.printStackTrace();
-      }
-
-      // find if there is cryptocize wallet
-      boolean found = false;
-      if (coinbaseUserAccounts != null) {
-        for (Account account: coinbaseUserAccounts.getAccounts()) {
-          if (account.getName().equals("cryptocize-wallet")) {
-            found = true;
-            break;
-          }
-        }
-      }
-
-      // if not created, we want to create the wallet/vault for them
-      if (!found) {
-        // first wallet
-        Account accountParam = new Account();
-        accountParam.setName("cryptocize-wallet");
-        accountParam.setType(Type.WALLET);
-        try {
-          coinbase.createAccount(accountParam);
-        } catch (CoinbaseException e) {
-          e.printStackTrace();
-        } catch (IOException e2) {
-          e2.printStackTrace();
-        }
-        // second wallet
-        accountParam.setName("cryptocize-wallet");
-        try {
-          coinbase.createAccount(accountParam);
-        } catch (CoinbaseException e) {
-          e.printStackTrace();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
-
-
-
-      // other things we might want to be able to do with the Coinbase object
-
-
-
-
-      return "complete";
+    public CreateWalletsForApplication(Intent intent) {
+      mIntent = intent;
     }
 
     @Override
-    protected void onPostExecute(String message) {
-      mTextMessage = (TextView) findViewById(R.id.username);
-      mTextMessage.setText("Welcome " + this.username);
+    public String doInBackground(String[] params) {
+      return "Hello";
     }
   }
+
+  public class CompleteAuthorizationTask extends AsyncTask<Void, Void, OAuthTokensResponse> {
+    private Intent mIntent;
+
+    public CompleteAuthorizationTask(Intent intent) {
+      mIntent = intent;
+    }
+
+    @Override
+    public OAuthTokensResponse doInBackground(Void... params) {
+      try {
+        final OAuth oauth = ((MainApplication)getApplicationContext()).getOAuth();
+        return oauth.completeAuthorization(MainActivity.this,
+            API_KEY,
+            API_SECRET,
+            mIntent.getData());
+      } catch (Exception e) {
+        Toast.makeText(getBaseContext(), "authorization failed", Toast.LENGTH_SHORT);
+        return null;
+      }
+    }
+
+    @Override
+    public void onPostExecute(OAuthTokensResponse tokens) {
+      Coinbase coinbase = ((MainApplication)getApplicationContext()).getClient();
+      coinbase.init(MainActivity.this, tokens.getAccessToken());
+    }
+  }
+
 }
