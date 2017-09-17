@@ -82,7 +82,7 @@ public class AccountFragment extends Fragment {
       @Override
       public void onResponse(Call<Account> call, Response<Account> response, Retrofit retrofit) {
         Log.d("wallet funds", response.body().getData().getBalance().getAmount());
-        walletFunds.setText("My Wallet: " + response.body().getData().getBalance().getAmount());
+        walletFunds.setText(response.body().getData().getBalance().getAmount() + " BTC");
       }
 
       @Override
