@@ -24,6 +24,9 @@ import app.cryptocize.com.cryptocize.fragments.SettingsFragment;
 import app.cryptocize.com.cryptocize.models.CoinbaseInformation;
 import com.coinbase.api.Coinbase;
 import com.coinbase.api.CoinbaseBuilder;
+import com.coinbase.api.entity.Account;
+import com.coinbase.api.entity.Account.Type;
+import com.coinbase.api.entity.AccountsResponse;
 import com.coinbase.api.exception.CoinbaseException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -164,23 +167,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
       Toast.makeText(this, "Sensor not found.", Toast.LENGTH_SHORT).show();
     }
 
-
-  }
-
-  protected void resetDay() {
-    // reset every day
-    if (curr_time.equals("00:00")) {
-      // step counter is smaller than goal
-      if (this.step_counter < Integer.parseInt(preferences.getString("Step Goals", "0"))) {
-        // TODO: deduct bitcoins from their hot wallet
-        Log.d("deduct", "wallet funds to vault");
-      }
-      // TODO: Store it to a separate file for number of steps each day
-      Log.d("store", "num steps");
-
-      // reset the steps for the next day
-      this.step_counter = 0;
-    }
   }
 
   @Override
@@ -191,19 +177,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     resetDay();
   }
 
+  protected void resetDay() {
+    // reset every day
+    if (curr_time.equals("00:00")) {
+      // step counter is smaller than goal
+      if (this.step_counter >= Integer.parseInt(preferences.getString("Step Goals", "0"))) {
+        // TODO: give bitcoins back too their hot wallet
+        Log.d("giveback", "wallet funds to vault");
+      }
+      // TODO: Store it to a separate file for number of steps each day
+      Log.d("store", "num steps");
+
+      // reset the steps for the next day
+      this.step_counter = 0;
+    }
+  }
+
   @Override
   public void onSensorChanged(SensorEvent sensorEvent) {
     //float step_count;
     if (walk) {
       step_counter++;
+    }
       //Log.d("STEPS: ", String.valueOf(sensorEvent.values[0]));
       Log.d("STEPS: ", String.valueOf(step_counter));
-//      GoalsFragment.setSteps(step_counter);
       GoalsFragment goals = (GoalsFragment) getFragmentManager().findFragmentByTag(GoalsFragment.TAG);
       if (goals != null) {
         goals.setSteps(step_counter);
       }
-    }
+    //}
   }
 
   @Override
@@ -244,12 +246,50 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
       this.username = userName;
       coinbaseInfo = new CoinbaseInformation(userName);
 
-      // create two wallets for them if the wallets are not yet created
+      // get all wallets of the user
+      AccountsResponse coinbaseUserAccounts = null;
+      try {
+        coinbaseUserAccounts = coinbase.getAccounts();
+      } catch (IOException e) {
+        e.printStackTrace();
+      } catch (CoinbaseException e2) {
+        e2.printStackTrace();
+      }
 
+      // find if there is cryptocize wallet
+      boolean found = false;
+      if (coinbaseUserAccounts != null) {
+        for (Account account: coinbaseUserAccounts.getAccounts()) {
+          if (account.getName().equals("cryptocize-wallet") {
+            found = true;
+            break;
+          }
+        }
+      }
 
-
-      // wallet.create
-
+      // if not created, we want to create the wallet/vault for them
+      if (!found) {
+        // first wallet
+        Account accountParam = new Account();
+        accountParam.setName("cryptocize-wallet");
+        accountParam.setType(Type.WALLET);
+        try {
+          coinbase.createAccount(accountParam);
+        } catch (CoinbaseException e) {
+          e.printStackTrace();
+        } catch (IOException e2) {
+          e2.printStackTrace();
+        }
+        // second wallet
+        accountParam.setName("cryptocize-wallet");
+        try {
+          coinbase.createAccount(accountParam);
+        } catch (CoinbaseException e) {
+          e.printStackTrace();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
 
 
 
